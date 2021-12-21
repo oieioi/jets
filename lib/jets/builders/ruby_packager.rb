@@ -6,6 +6,7 @@ module Jets::Builders
 
     attr_reader :full_app_root
     def initialize(relative_app_root)
+      # /tmp/jets/project-name/stage/code
       @full_app_root = "#{build_area}/#{relative_app_root}"
     end
 
@@ -73,7 +74,7 @@ module Jets::Builders
       # For example we add the jets-rails to the Gemfile.
       copy_back_gemfile_lock
 
-      puts 'Bundle install success.'
+      headline 'Bundle install success.'
     end
 
     def copy_back_gemfile_lock
@@ -85,7 +86,7 @@ module Jets::Builders
     # Clean up extra unneeded files to reduce package size
     # Because we're removing files (something dangerous) use full paths.
     def tidy
-      puts "Tidying project: removing ignored files to reduce package size."
+      headline "Tidying project: removing ignored files to reduce package size."
       tidy_project(@full_app_root)
       # The rack sub project has it's own gitignore.
       tidy_project(@full_app_root+"/rack")
@@ -222,13 +223,18 @@ EOL
     def copy_cache_gems
       vendor_gems = "#{@full_app_root}/vendor/gems"
       if File.exist?(vendor_gems)
-        puts "Removing current vendor_gems from project"
+        headline "Removing current vendor_gems from project"
         FileUtils.rm_rf(vendor_gems)
       end
+
+      headline "copy_cache_gems: exists #{"#{cache_area}/vendor/gems"}?: #{File.exist?("#{cache_area}/vendor/gems")}"
       # Leave #{Jets.build_root}/vendor_gems behind to act as cache
       if File.exist?("#{cache_area}/vendor/gems")
         FileUtils.mkdir_p(File.dirname(vendor_gems))
         Jets::Util.cp_r("#{cache_area}/vendor/gems", vendor_gems)
+        sh "ls -la #{vendor_gems}"
+        sh "ls -la #{vendor_gems}/ruby"
+        sh "ls -la #{vendor_gems}/ruby/2.7.0"
       end
     end
   end

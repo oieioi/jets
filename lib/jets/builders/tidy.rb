@@ -8,6 +8,7 @@ module Jets::Builders
     end
 
     def cleanup!
+      headline "remove: #{removals}"
       removals.each do |removal|
         removal = removal.sub(%r{^/},'') # remove leading slash
         path = "#{@project_root}/#{removal}"
